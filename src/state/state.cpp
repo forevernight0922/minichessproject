@@ -5,17 +5,37 @@
 #include "./state.hpp"
 #include "../config.hpp"
 
+static const int move_table_rook_bishop[8][7][2] = {
+  {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
+  {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
+  {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
+  {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
+  {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
+  {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}},
+  {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
+  {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
+};
+static const int move_table_knight[8][2] = {
+  {1, 2}, {1, -2},
+  {-1, 2}, {-1, -2},
+  {2, 1}, {2, -1},
+  {-2, 1}, {-2, -1},
+};
+static const int move_table_king[8][2] = {
+  {1, 0}, {0, 1}, {-1, 0}, {0, -1}, 
+  {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
+};
 
 /**
  * @brief evaluate the state
  * 
  * @return int 
  */
-int State::evaluate(){
+double State::evaluate(){
   // [TODO] design your own evaluation function
   Board nowboard=this->board;
-  int totalvalue=0;
-  int valuetable[7]={0,2,14,8,14,28,1e19};
+  double totalvalue=0;
+  double valuetable[7]={0,2,14,28,14,28,15000};
   
     for(int i=0;i<BOARD_H;i++){
       for(int j=0;j<BOARD_W;j++){
@@ -37,6 +57,9 @@ int State::evaluate(){
                 int tarj=move_table_rook_bishop[m][n][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
+                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
+                    break;
+                  }
                 }
               }
             }
@@ -47,6 +70,7 @@ int State::evaluate(){
                 int tarj=move_table_knight[m][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
+
                 }
             }
           
@@ -58,6 +82,9 @@ int State::evaluate(){
                 int tarj=move_table_rook_bishop[m][n][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
+                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
+                    break;
+                  }
                 }
               }
             }
@@ -69,18 +96,19 @@ int State::evaluate(){
                 int tarj=move_table_rook_bishop[m][n][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
+                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
+                    break;
+                  }
                 }
               }
             }
           case 6:  
-            totalvalue+=valuetable[4];
-            for(int m=4;m<7;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
+            totalvalue+=valuetable[6];
+            for(int m=0;m<8;m++){
+                int tari=move_table_king[m][0]+i;
+                int tarj=move_table_king[m][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
-                }
               }
             }  
           default:
@@ -104,6 +132,9 @@ int State::evaluate(){
                 int tarj=move_table_rook_bishop[m][n][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
+                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
+                    break;
+                  }
                 }
               }
             }
@@ -125,6 +156,9 @@ int State::evaluate(){
                 int tarj=move_table_rook_bishop[m][n][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
+                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
+                    break;
+                  }
                 }
               }
             }
@@ -136,18 +170,19 @@ int State::evaluate(){
                 int tarj=move_table_rook_bishop[m][n][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
+                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
+                    break;
+                  }
                 }
               }
             }
           case 6:  
-            totalvalue-=valuetable[4];
-            for(int m=4;m<7;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
+            totalvalue-=valuetable[6];
+            for(int m=0;m<8;m++){
+                int tari=move_table_king[m][0]+i;
+                int tarj=move_table_king[m][1]+j;
                 if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
                   totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
-                }
               }
             }  
           default:
@@ -196,26 +231,6 @@ State* State::next_state(Move move){
 }
 
 
-static const int move_table_rook_bishop[8][7][2] = {
-  {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
-  {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
-  {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
-  {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
-  {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
-  {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}},
-  {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
-  {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
-};
-static const int move_table_knight[8][2] = {
-  {1, 2}, {1, -2},
-  {-1, 2}, {-1, -2},
-  {2, 1}, {2, -1},
-  {-2, 1}, {-2, -1},
-};
-static const int move_table_king[8][2] = {
-  {1, 0}, {0, 1}, {-1, 0}, {0, -1}, 
-  {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
-};
 
 
 /**
