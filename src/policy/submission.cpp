@@ -4,7 +4,7 @@
 #include <sstream>
 #include <fstream>  
 #include "../state/state.hpp"
-#include "./minimax.hpp"
+#include "./submission.hpp"
 const std::string file_log = "gamelog.txt";
 
 /**
@@ -16,7 +16,7 @@ const std::string file_log = "gamelog.txt";
  */
 
 
-int Minimax::tracing(State *state,int round,int nowplayer){
+int Submit::tracing(State *state,int round,int nowplayer){
     Move RtAction;
     
     if(round==4){
@@ -49,7 +49,7 @@ int Minimax::tracing(State *state,int round,int nowplayer){
     }
     
 }
-Move Minimax::get_move(State *state, int depth){
+Move Submit::get_move(State *state, int depth){
     if(!state->legal_actions.size())
     state->get_legal_actions();
     int nowplayer=state->player;
