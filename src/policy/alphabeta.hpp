@@ -1,16 +1,13 @@
 #pragma once
 #include "../state/state.hpp"
 
-struct Node{
-    Move move;
-    int value;
-};
+
 /**
  * @brief Policy class for random policy, 
  * your policy class should have get_move method
  */
-class Minimax{
+class alphabeta{
 public:
   static Move get_move(State *state, int depth);
-  static int tracing(State *state,int round,int player);
+  static int counting_alpha_beta(State *state,int round,int nowplayer,int prea,int preb);
 };

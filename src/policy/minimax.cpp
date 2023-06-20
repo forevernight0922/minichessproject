@@ -16,65 +16,56 @@ const std::string file_log = "gamelog.txt";
  */
 
 
-Node Minimax::tracing(State *state,int round,int player,std::vector<Move> actions){
+int Minimax::tracing(State *state,int round,int nowplayer){
     Move RtAction;
-    Node rtnode;
-    if(round==2){
+    
+    if(round==4){
        
-        double max=-1e19;
-        for(auto i:actions){
-            State *newstate=state->next_state(i);
-            if(newstate->evaluate()>max){
-                max=newstate->evaluate();
-                RtAction=i;
-                rtnode.value=max;
-                rtnode.move=RtAction;
-            }
-        }
-        return rtnode;
+       return state->evaluate(nowplayer);
+        
     }
-    else if(round==1){
-        double min=1e19;
-        for(auto i:actions){
+    if(!state->legal_actions.size())
+    state->get_legal_actions();
+    if(state->player==nowplayer){
+        int value=-2e8;
+        for(auto i:state->legal_actions){
             State *newstate=state->next_state(i);
-            if(!state->legal_actions.size())
-                    state->get_legal_actions();
-            Node get=tracing(newstate,round+1,player,newstate->legal_actions);
-            if(get.value<min){
-                min=get.value;
-                rtnode.value=min;
-                rtnode.move=i;
-            }
+            
+            value=std::max(value,tracing(newstate,round+1,nowplayer));
+           
         }
-        return rtnode;
+        return value;
+        
     }
-    else if(round==0){
-        double max=-1e19;
-        for(auto i:actions){
+    else{
+        int value=2e8;
+        Node rtnode;
+        
+         for(auto i:state->legal_actions){
             State *newstate=state->next_state(i);
-            if(!state->legal_actions.size())
-                state->get_legal_actions();
-            Node get=tracing(newstate,round+1,player,newstate->legal_actions);
-            if(get.value>max){
-                max=get.value;
-                rtnode.value=max;
-                rtnode.move=i;
-            }
+            value=std::min(value,tracing(newstate,round+1,nowplayer));
+           
         }
-        return rtnode;
+        return value;
     }
+    
 }
 Move Minimax::get_move(State *state, int depth){
     if(!state->legal_actions.size())
     state->get_legal_actions();
     int nowplayer=state->player;
     std::vector<Move> actions = state->legal_actions;
-    Node rtnode=tracing(state,0,nowplayer,actions);
-    
-    std::ofstream ofs ("test.txt", std::ofstream::out);
-    ofs <<rtnode.value;
+    int max=-2e8;
+    Move rtmove;
+    for(auto i:actions){
+            State* nextstate=state->next_state(i);
+            int value=tracing(nextstate,1,nowplayer);
+            if(value>max){
+                rtmove=i;
+                max=value;    
+            }
 
-    ofs.close();
-    return rtnode.move;
+    }
+    return rtmove;
 
 }

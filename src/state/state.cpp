@@ -25,187 +25,42 @@ static const int move_table_king[8][2] = {
   {1, 0}, {0, 1}, {-1, 0}, {0, -1}, 
   {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
 };
-
-/**
- * @brief evaluate the state
- * 
- * @return int 
- */
-double State::evaluate(){
-  // [TODO] design your own evaluation function
-  Board nowboard=this->board;
-  double totalvalue=0;
-  double valuetable[7]={0,2,14,28,14,28,15000};
+static const int weighttable[6][5] = {
   
-    for(int i=0;i<BOARD_H;i++){
-      for(int j=0;j<BOARD_W;j++){
-        //count for white playwer
-        switch(nowboard.board[0][i][j]-48){
-          case 1:
-            totalvalue+=valuetable[1];
-            if(i+1<BOARD_H&&j+1<BOARD_W&&(i+1)>=0&&(j+1)>=0){
-              totalvalue+=valuetable[nowboard.board[1][i+1][j+1]-48]/2;
-            }
-            if(i+1<BOARD_H&&j-1<BOARD_W&&(i+1)>=0&&(j-1)>=0){
-              totalvalue+=valuetable[nowboard.board[1][i+1][j-1]-48]/2;
-            }
-          case 2:
-            totalvalue+=valuetable[2];
-            for(int m=0;m<4;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
-                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
-                    break;
-                  }
-                }
-              }
-            }
-          case 3:
-            totalvalue+=valuetable[3];
-            for(int m=0;m<4;m++){            
-                int tari=move_table_knight[m][0]+i;
-                int tarj=move_table_knight[m][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
+    {2,2,2,2,2},
+    {1,1,1,1,1},
+    {0,0,0,0,0},
+    {0,0,0,0,0},
+    {1,1,1,1,1},
+    {2,2,2,2,2},
+  };
 
+int State::evaluate(int nplayer) {
+    // 1st iteration: naive approach
+    //                                   
+    static const int piece_value[7] = { 0,100, 500 ,320, 330, 900, 1000000 };
+    int value = 0;
+    for (int i = 0; i < BOARD_H; i += 1) {
+        for (int j = 0; j < BOARD_W; j += 1) {
+            int now_piece = this->board.board[nplayer][i][j]; // <-
+            if (now_piece) {
+                if(now_piece==1){
+                  value += piece_value[now_piece]*weighttable[i][j];
                 }
+                 value += piece_value[now_piece];
+           
             }
-          
-          case 4:
-            totalvalue+=valuetable[4];
-            for(int m=4;m<7;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
-                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
-                    break;
-                  }
+            now_piece = this->board.board[1-nplayer][i][j]; // <-
+            if (now_piece) {
+                if(now_piece==1){
+                  value -= piece_value[now_piece]*weighttable[i][j];
                 }
-              }
+                value -= piece_value[now_piece];
             }
-          case 5:
-            totalvalue+=valuetable[5];
-            for(int m=0;m<7;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
-                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
-                    break;
-                  }
-                }
-              }
-            }
-          case 6:  
-            totalvalue+=valuetable[6];
-            for(int m=0;m<8;m++){
-                int tari=move_table_king[m][0]+i;
-                int tarj=move_table_king[m][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue+=valuetable[nowboard.board[1][tari][tarj]-48]/2;
-              }
-            }  
-          default:
-            totalvalue+=0;
-              
         }
-        switch(nowboard.board[1][i][j]-48){
-          case 1:
-            totalvalue-=valuetable[1];
-            if(i+1<BOARD_H&&j+1<BOARD_W&&(i+1)>=0&&(j+1)>=0){
-              totalvalue-=valuetable[nowboard.board[0][i+1][j+1]-48]/2;
-            }
-            if(i+1<BOARD_H&&j-1<BOARD_W&&(i+1)>=0&&(j-1)>=0){
-              totalvalue-=valuetable[nowboard.board[0][i+1][j-1]-48]/2;
-            }
-          case 2:
-            totalvalue-=valuetable[2];
-            for(int m=0;m<4;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
-                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
-                    break;
-                  }
-                }
-              }
-            }
-          case 3:
-            totalvalue-=valuetable[3];
-            for(int m=0;m<4;m++){            
-                int tari=move_table_knight[m][0]+i;
-                int tarj=move_table_knight[m][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
-                }
-            }
-          
-          case 4:
-            totalvalue-=valuetable[4];
-            for(int m=4;m<7;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
-                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
-                    break;
-                  }
-                }
-              }
-            }
-          case 5:
-            totalvalue-=valuetable[5];
-            for(int m=0;m<7;m++){
-              for(int n=0;n<8;n++){
-                int tari=move_table_rook_bishop[m][n][0]+i;
-                int tarj=move_table_rook_bishop[m][n][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
-                  if(valuetable[nowboard.board[0][tari][tarj]-48]!=0){
-                    break;
-                  }
-                }
-              }
-            }
-          case 6:  
-            totalvalue-=valuetable[6];
-            for(int m=0;m<8;m++){
-                int tari=move_table_king[m][0]+i;
-                int tarj=move_table_king[m][1]+j;
-                if(tari<BOARD_H&&tarj<BOARD_W&&tari>=0&&tarj>=0){
-                  totalvalue-=valuetable[nowboard.board[0][tari][tarj]-48]/2;
-              }
-            }  
-          default:
-            totalvalue-=0;
-              
-        }
-      }
     }
-    if(player==0){
-      return totalvalue;
-    }
-    else return -totalvalue;
-
-  return 0;
+    return value;  
 }
-
-
-/**
- * @brief return next state after the move
- * 
- * @param move 
- * @return State* 
- */
 State* State::next_state(Move move){
   Board next = this->board;
   Point from = move.first, to = move.second;
@@ -229,10 +84,6 @@ State* State::next_state(Move move){
   
   return next_state;
 }
-
-
-
-
 /**
  * @brief get all legal actions of now state
  * 

@@ -6,7 +6,6 @@
 #include <vector>
 #include <cassert>
 #include <cstdint>
-
 #include "config.hpp"
 
 
@@ -419,7 +418,6 @@ int main(int argc, char** argv) {
     data = game.encode_output();
     std::cout << data << std::endl;
     log << data << std::endl;
-    
     data = game.encode_state();
     std::ofstream fout(file_state);
     fout << data;
